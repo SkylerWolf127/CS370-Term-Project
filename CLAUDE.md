@@ -6,9 +6,11 @@ This file provides guidance to Claude Code when working with code in this reposi
 This is a term project for an Operating Systems class. We'll have a few different milestones
 - M1 - Github setup and project setup
 - M2 - The Design Document
-- M3 - TBD development round 1
-- M4 - TBD Development round 2
+- M3 - Checkpoint Demo
+- M4 - The 48 hour soak
 - M5 - The Evaluation
+- M6 - The demo
+
 
 ## Hard Constraints
 - The product must make NO network calls to other LLMs, AIs, and their respective APIs. Network access is explicitly allowed for whitelisted devices for a reach goal. 
