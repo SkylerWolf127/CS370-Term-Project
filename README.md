@@ -1,7 +1,7 @@
 # CS370-Term-Project
 ## An embedded Raspberry Pi Application to do the thing!
 
-Brought to you by: The C-Team
+Brought to you by: The C<sup>(-1)</sup>-Team
 *Bringing you "functional" software since 2024*
 
 ## AI Disclosure 
