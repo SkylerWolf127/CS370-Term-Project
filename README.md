@@ -2,7 +2,7 @@
 ## An embedded Raspberry Pi Application to do the thing!
 
 Brought to you by: The C-Team
-*Bringing you "functional" software since 2025*
+*Bringing you "functional" software since 2024*
 
 ## AI Disclosure 
 As part of the assignment description and requirements, Claude Code was required in the workflow. 
