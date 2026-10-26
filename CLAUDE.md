@@ -11,6 +11,10 @@ This is a term project for an Operating Systems class. We'll have a few differen
 - M5 - The Evaluation
 - M6 - The demo
 
+## Target Hardware
+- Raspberry Pi Model 4B 4GB
+- Raspberry Pi Camera
+- Soil moisture sensor
 
 ## Hard Constraints
 - The product must make NO network calls to other LLMs, AIs, and their respective APIs. Network access is explicitly allowed for whitelisted devices for a reach goal. 
