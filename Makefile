@@ -1,9 +1,13 @@
 CC      := gcc
-CFLAGS  := -std=c2x -Wall -Wextra -Wpedantic -Wvla -Werror -g -Iinclude
+CFLAGS  := -std=c2x -Wall -Wextra -Wpedantic -Wvla -Werror -g -Iinclude -MMD -MP
 BUILD   := build
 SRCS    := $(wildcard src/*.c)
 OBJS    := $(SRCS:src/%.c=$(BUILD)/%.o)
 TARGET  := $(BUILD)/plantsense
+
+LIB_OBJS  := $(filter-out $(BUILD)/main.o,$(OBJS))
+TEST_SRCS := $(wildcard tests/test_*.c)
+TEST_BINS := $(TEST_SRCS:tests/%.c=$(BUILD)/tests/%)
 
 all: $(TARGET)
 
@@ -13,10 +17,18 @@ $(TARGET): $(OBJS)
 $(BUILD)/%.o: src/%.c | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD):
-	mkdir -p $(BUILD)
+$(BUILD)/tests/%: tests/%.c $(LIB_OBJS) | $(BUILD)/tests
+	$(CC) $(CFLAGS) $< $(LIB_OBJS) -o $@
+
+test: $(TEST_BINS)
+	@set -e; for t in $(TEST_BINS); do $$t; done
+
+$(BUILD) $(BUILD)/tests:
+	mkdir -p $@
 
 clean:
 	rm -rf $(BUILD)
 
-.PHONY: all clean
+-include $(OBJS:.o=.d) $(TEST_BINS:=.d)
+
+.PHONY: all clean test
