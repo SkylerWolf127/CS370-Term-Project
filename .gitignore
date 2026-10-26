@@ -1,0 +1,5 @@
+build/
+*.o
+*.log
+.idea/
+compile_commands.json
