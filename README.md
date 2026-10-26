@@ -16,4 +16,6 @@ As part of the assignment description and requirements, Claude Code was required
 
 
 # Build instructions and requirements 
-* TBD
+* `make` builds `build/plantsense`; `make test` runs the hardware-free unit tests.
+* On the Pi, `rpicam-still` (Raspberry Pi OS Bookworm) must be on `PATH`.
+* Exit codes are documented in `include/exit_codes.h`.
