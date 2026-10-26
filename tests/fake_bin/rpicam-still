@@ -1,0 +1,20 @@
+#!/bin/sh
+# Stand-in for rpicam-still used by tests/test_camera.c. Never touches hardware.
+#   PS_FAKE_MODE     ok | fail | hang | garbage | nofile
+#   PS_FAKE_FIXTURE  BMP to copy to the -o path (mode ok)
+#   PS_FAKE_RECORD   file that receives the -o path, then all arguments
+[ -n "$PS_FAKE_RECORD" ] && printf '%s\n' "$*" > "$PS_FAKE_RECORD.args"
+out=""
+while [ $# -gt 0 ]; do
+    [ "$1" = "-o" ] && { shift; out="$1"; }
+    shift
+done
+[ -n "$PS_FAKE_RECORD" ] && printf '%s\n' "$out" > "$PS_FAKE_RECORD"
+case "$PS_FAKE_MODE" in
+    ok)      cp "$PS_FAKE_FIXTURE" "$out" ;;
+    fail)    exit 1 ;;
+    hang)    exec sleep 30 ;;
+    garbage) printf 'definitely not a bitmap' > "$out" ;;
+    nofile)  rm -f "$out" ;;
+    *)       exit 99 ;;
+esac
