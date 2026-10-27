@@ -1,0 +1,14 @@
+#!/bin/sh
+# Stand-in for libgpiod v2 gpioget used by tests/test_soil.c. Never touches hardware.
+#   PS_FAKE_GPIO_MODE    zero | one | fail | hang | garbage | flood
+#   PS_FAKE_GPIO_RECORD  file that receives all arguments
+[ -n "$PS_FAKE_GPIO_RECORD" ] && printf '%s\n' "$*" > "$PS_FAKE_GPIO_RECORD"
+case "$PS_FAKE_GPIO_MODE" in
+    zero)    echo 0 ;;
+    one)     echo 1 ;;
+    fail)    echo "gpioget: unable to request line" >&2; exit 1 ;;
+    hang)    exec sleep 30 ;;
+    garbage) echo active ;;
+    flood)   yes 1 | head -c 100000 ;;
+    *)       exit 99 ;;
+esac

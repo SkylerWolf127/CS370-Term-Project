@@ -5,9 +5,10 @@
 #include <time.h>
 
 #include "light.h"
+#include "soil.h"
 
 #define LOG_DIR      "logs"
-#define LOG_LINE_MAX 256
+#define LOG_LINE_MAX 320  /* light part + soil part */
 #define LOG_PATH_MAX 256
 
 /* One file per run: <dir>/session_YYYYMMDD_HHMMSS.txt */
@@ -25,6 +26,9 @@ void log_format_reading(char *buf, size_t len, time_t when, fixed4_t level,
                         fixed4_t avg, enum light_verdict v);
 /* "2026-10-26T16:05:00 ERROR capture failed: <reason>" */
 void log_format_failure(char *buf, size_t len, time_t when, const char *reason);
+/* Append " soil=DRY raw=1 NEEDS WATER", or " soil=ERROR(<reason>)" when
+ * soil_rc is nonzero, to a line made by one of the two above. */
+void log_append_soil(char *buf, size_t len, int soil_rc, soil_state_t state);
 
 /* Append one line (no trailing newline needed), then flush and fsync. */
 int log_write_line(struct session_log *log, const char *line);

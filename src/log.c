@@ -66,6 +66,18 @@ void log_format_failure(char *buf, size_t len, time_t when, const char *reason)
     snprintf(buf, len, "%s ERROR capture failed: %s", ts, reason);
 }
 
+void log_append_soil(char *buf, size_t len, int soil_rc, soil_state_t state)
+{
+    size_t used = strnlen(buf, len);
+    if (used >= len)
+        return;
+    if (soil_rc != SOIL_OK)
+        snprintf(buf + used, len - used, " soil=ERROR(%s)", soil_strerror(soil_rc));
+    else
+        snprintf(buf + used, len - used, " soil=%s raw=%d %s", soil_state_str(state),
+                 soil_state_raw(state), soil_verdict_str(state));
+}
+
 int log_write_line(struct session_log *log, const char *line)
 {
     if (!log->fp) {

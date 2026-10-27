@@ -106,6 +106,41 @@ static void test_log_format(void)
     CHECK_STR(line, "2026-10-26T16:05:00 ERROR capture failed: rpicam-still timed out after 15000 ms");
 }
 
+static void test_log_format_soil(void)
+{
+    char line[LOG_LINE_MAX];
+    /* 2026-10-27T17:30:00 in UTC */
+    const time_t t = 1793122200;
+
+    /* Both sensors OK. */
+    log_format_reading(line, sizeof line, t, 421337, 419020, VERDICT_MORE);
+    log_append_soil(line, sizeof line, SOIL_OK, SOIL_DRY);
+    CHECK_STR(line, "2026-10-27T17:30:00 level=42.1337 avg=41.9020 NEEDS MORE LIGHT"
+                    " soil=DRY raw=1 NEEDS WATER");
+    log_format_reading(line, sizeof line, t, 500000, 500000, VERDICT_OK);
+    log_append_soil(line, sizeof line, SOIL_OK, SOIL_WET);
+    CHECK_STR(line, "2026-10-27T17:30:00 level=50.0000 avg=50.0000 LIGHT OK"
+                    " soil=WET raw=0 SOIL OK");
+
+    /* Soil failed, light fine. */
+    log_format_reading(line, sizeof line, t, 421337, 419020, VERDICT_MORE);
+    log_append_soil(line, sizeof line, SOIL_E_TIMEOUT, SOIL_WET);
+    CHECK_STR(line, "2026-10-27T17:30:00 level=42.1337 avg=41.9020 NEEDS MORE LIGHT"
+                    " soil=ERROR(gpioget timeout)");
+
+    /* Light failed, soil fine. */
+    log_format_failure(line, sizeof line, t, "rpicam-still timed out after 15000 ms");
+    log_append_soil(line, sizeof line, SOIL_OK, SOIL_DRY);
+    CHECK_STR(line, "2026-10-27T17:30:00 ERROR capture failed: rpicam-still timed out"
+                    " after 15000 ms soil=DRY raw=1 NEEDS WATER");
+
+    /* Both failed. */
+    log_format_failure(line, sizeof line, t, "could not run rpicam-still (installed? on PATH?)");
+    log_append_soil(line, sizeof line, SOIL_E_EXEC, SOIL_WET);
+    CHECK_STR(line, "2026-10-27T17:30:00 ERROR capture failed: could not run rpicam-still"
+                    " (installed? on PATH?) soil=ERROR(gpioget not found)");
+}
+
 static void test_log_files(void)
 {
     char newest[LOG_PATH_MAX];
@@ -178,6 +213,7 @@ int main(void)
     test_interval_parse();
     test_config_files();
     test_log_format();
+    test_log_format_soil();
     test_log_files();
     return test_report("test_config_log");
 }

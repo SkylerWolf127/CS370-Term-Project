@@ -10,6 +10,9 @@ enum plantsense_exit {
     PS_EXIT_CONFIG = 2,  /* plantsense.conf unreadable or malformed */
     PS_EXIT_CAMERA = 3,  /* MONITOR_MAX_CAMERA_FAILURES captures failed in a row */
     PS_EXIT_IO     = 4,  /* session log write failed, or signal setup failed */
+    PS_EXIT_SOIL   = 5,  /* soil sensor / GPIO (gpioget) error. Reserved: soil
+                          * failures are logged per tick and never stop the
+                          * loop, so nothing returns this yet. */
 };
 
 #endif

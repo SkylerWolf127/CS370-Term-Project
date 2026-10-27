@@ -10,6 +10,7 @@
 
 #include "camera.h"
 #include "sig.h"
+#include "soil.h"
 
 #define NAP_MS 200  /* bounds how long a signal can go unnoticed while idle */
 
@@ -97,6 +98,11 @@ enum monitor_result monitor_run(struct monitor_state *m, const struct config *cf
         } else {
             log_format_failure(line, sizeof line, now, why);
         }
+
+        /* Independent of the camera: either sensor can fail alone. */
+        soil_state_t soil = SOIL_WET;
+        int soil_rc = soil_read(&soil_gpioget_ops, &soil);
+        log_append_soil(line, sizeof line, soil_rc, soil);
         if (emit(m, line) != 0)
             return MONITOR_E_IO;
 
