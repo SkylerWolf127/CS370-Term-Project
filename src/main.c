@@ -18,8 +18,9 @@ int main(void)
     }
 
     struct config cfg;
+    struct soil_config soil;
     char why[160] = "";
-    if (config_load(CONFIG_PATH, &cfg, why, sizeof why) != CONFIG_OK) {
+    if (config_load_all(CONFIG_PATH, &cfg, &soil, why, sizeof why) != CONFIG_OK) {
         fprintf(stderr, "plantsense: %s: %s\n"
                         "Fix the file or delete it to use defaults.\n",
                 CONFIG_PATH, why);
@@ -28,7 +29,7 @@ int main(void)
 
     struct monitor_state mon;
     monitor_init(&mon);
-    int code = menu_run(&cfg, &mon);
+    int code = menu_run(&cfg, &soil, &mon);
     if (monitor_close(&mon) != 0) {
         fprintf(stderr, "plantsense: closing session log failed\n");
         if (code == PS_EXIT_OK)

@@ -41,9 +41,9 @@ static void show_menu(const struct config *cfg)
            cfg->interval_s, fixed4_format(cfg->optimal_light, opt, sizeof opt));
 }
 
-static void save(const struct config *cfg)
+static void save(const struct config *cfg, const struct soil_config *soil)
 {
-    if (config_save(CONFIG_PATH, cfg) != CONFIG_OK)
+    if (config_save_all(CONFIG_PATH, cfg, soil) != CONFIG_OK)
         fprintf(stderr, "ERROR: could not save %s; setting kept for this run only.\n",
                 CONFIG_PATH);
     else
@@ -51,7 +51,7 @@ static void save(const struct config *cfg)
 }
 
 /* Returns false on EOF/signal so the caller can shut down. */
-static bool set_interval(struct config *cfg)
+static bool set_interval(struct config *cfg, const struct soil_config *soil)
 {
     char buf[64];
     printf("Capture interval in seconds (%d-%d): ", CONFIG_INTERVAL_MIN, CONFIG_INTERVAL_MAX);
@@ -65,11 +65,11 @@ static bool set_interval(struct config *cfg)
         return true;
     }
     cfg->interval_s = v;
-    save(cfg);
+    save(cfg, soil);
     return true;
 }
 
-static bool set_optimal(struct config *cfg)
+static bool set_optimal(struct config *cfg, const struct soil_config *soil)
 {
     char buf[64];
     printf("Optimal light level (0-100, up to 4 decimals): ");
@@ -82,7 +82,7 @@ static bool set_optimal(struct config *cfg)
         return true;
     }
     cfg->optimal_light = v;
-    save(cfg);
+    save(cfg, soil);
     return true;
 }
 
@@ -100,7 +100,7 @@ static void show_latest_log(void)
     printf("--- end ---\n");
 }
 
-int menu_run(struct config *cfg, struct monitor_state *mon)
+int menu_run(struct config *cfg, struct soil_config *soil, struct monitor_state *mon)
 {
     for (;;) {
         show_menu(cfg);
@@ -116,11 +116,11 @@ int menu_run(struct config *cfg, struct monitor_state *mon)
 
         switch (choice) {
         case 1:
-            if (!set_interval(cfg))
+            if (!set_interval(cfg, soil))
                 return PS_EXIT_OK;
             break;
         case 2:
-            if (!set_optimal(cfg))
+            if (!set_optimal(cfg, soil))
                 return PS_EXIT_OK;
             break;
         case 3:

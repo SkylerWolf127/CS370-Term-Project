@@ -78,6 +78,27 @@ void log_append_soil(char *buf, size_t len, int soil_rc, soil_state_t state)
                  soil_state_raw(state), soil_verdict_str(state));
 }
 
+void log_append_soil_i2c(char *buf, size_t len, const char *err,
+                         const struct soil_i2c_reading *r, const char *verdict)
+{
+    size_t used = strnlen(buf, len);
+    if (used >= len)
+        return;
+    if (err || !r) {
+        snprintf(buf + used, len - used, " soil=ERROR(%s)", err ? err : "no reading");
+        return;
+    }
+    char m[FIXED4_STR_LEN], t[16] = "NA";
+    if (r->temp_ok) {
+        int32_t mag = r->temp_x10 < 0 ? -r->temp_x10 : r->temp_x10;
+        snprintf(t, sizeof t, "%s%d.%d", r->temp_x10 < 0 ? "-" : "",
+                 (int)(mag / 10), (int)(mag % 10));
+    }
+    snprintf(buf + used, len - used, " soil=%s raw=%d temp=%s %s",
+             fixed4_format(r->moisture, m, sizeof m), (int)r->raw, t,
+             verdict ? verdict : "");
+}
+
 int log_write_line(struct session_log *log, const char *line)
 {
     if (!log->fp) {

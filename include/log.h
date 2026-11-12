@@ -6,6 +6,7 @@
 
 #include "light.h"
 #include "soil.h"
+#include "soil_i2c.h"
 
 #define LOG_DIR      "logs"
 #define LOG_LINE_MAX 320  /* light part + soil part */
@@ -29,6 +30,10 @@ void log_format_failure(char *buf, size_t len, time_t when, const char *reason);
 /* Append " soil=DRY raw=1 NEEDS WATER", or " soil=ERROR(<reason>)" when
  * soil_rc is nonzero, to a line made by one of the two above. */
 void log_append_soil(char *buf, size_t len, int soil_rc, soil_state_t state);
+/* I2C backend: append " soil=57.1234 raw=412 temp=21.5 SOIL OK" (temp=NA
+ * when !r->temp_ok), or " soil=ERROR(<err>)" when `err` is non-NULL. */
+void log_append_soil_i2c(char *buf, size_t len, const char *err,
+                         const struct soil_i2c_reading *r, const char *verdict);
 
 /* Append one line (no trailing newline needed), then flush and fsync. */
 int log_write_line(struct session_log *log, const char *line);
