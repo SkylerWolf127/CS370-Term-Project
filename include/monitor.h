@@ -15,6 +15,7 @@ struct monitor_state {
     struct session_log log;
     bool log_open;
     struct light_stats stats;
+    bool soil_id_checked;  /* seesaw hardware ID verified this run */
 };
 
 enum monitor_result {
@@ -25,7 +26,8 @@ enum monitor_result {
 };
 
 void monitor_init(struct monitor_state *m);
-enum monitor_result monitor_run(struct monitor_state *m, const struct config *cfg);
+enum monitor_result monitor_run(struct monitor_state *m, const struct config *cfg,
+                                const struct soil_config *soil_cfg);
 int monitor_close(struct monitor_state *m);
 
 #endif

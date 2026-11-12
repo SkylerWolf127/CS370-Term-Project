@@ -13,6 +13,10 @@ enum plantsense_exit {
     PS_EXIT_SOIL   = 5,  /* soil sensor / GPIO (gpioget) error. Reserved: soil
                           * failures are logged per tick and never stop the
                           * loop, so nothing returns this yet. */
+    PS_EXIT_I2C    = 6,  /* soil sensor I2C bus error (/dev/i2c-1, seesaw at
+                          * 0x36). Reserved for the same reason as
+                          * PS_EXIT_SOIL: I2C failures are logged per tick
+                          * as soil=ERROR(<reason>) and the loop continues. */
 };
 
 #endif

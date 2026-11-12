@@ -11,6 +11,7 @@
 #include "camera.h"
 #include "sig.h"
 #include "soil.h"
+#include "soil_i2c.h"
 
 #define NAP_MS 200  /* bounds how long a signal can go unnoticed while idle */
 
@@ -19,6 +20,7 @@ void monitor_init(struct monitor_state *m)
     m->log.fp = NULL;
     m->log_open = false;
     light_stats_init(&m->stats);
+    m->soil_id_checked = false;
 }
 
 int monitor_close(struct monitor_state *m)
@@ -57,7 +59,8 @@ static int emit(struct monitor_state *m, const char *line)
     return 0;
 }
 
-enum monitor_result monitor_run(struct monitor_state *m, const struct config *cfg)
+enum monitor_result monitor_run(struct monitor_state *m, const struct config *cfg,
+                                const struct soil_config *soil_cfg)
 {
     if (!m->log_open) {
         if (log_open(&m->log, LOG_DIR, time(NULL)) != 0) {
@@ -100,9 +103,21 @@ enum monitor_result monitor_run(struct monitor_state *m, const struct config *cf
         }
 
         /* Independent of the camera: either sensor can fail alone. */
-        soil_state_t soil = SOIL_WET;
-        int soil_rc = soil_read(&soil_gpioget_ops, &soil);
-        log_append_soil(line, sizeof line, soil_rc, soil);
+        if (soil_cfg->backend == SOIL_BACKEND_GPIO) {
+            soil_state_t soil = SOIL_WET;
+            int soil_rc = soil_read(&soil_gpioget_ops, &soil);
+            log_append_soil(line, sizeof line, soil_rc, soil);
+        } else {
+            struct soil_i2c_reading r;
+            char swhy[128];
+            if (soil_i2c_measure(&m->soil_id_checked, soil_cfg->dry_raw, soil_cfg->wet_raw,
+                                 &r, swhy, sizeof swhy) == SOIL_I2C_OK)
+                log_append_soil_i2c(line, sizeof line, NULL, &r,
+                                    soil_i2c_verdict(r.moisture, soil_cfg->optimal,
+                                                     SOIL_I2C_DEADBAND));
+            else
+                log_append_soil_i2c(line, sizeof line, swhy, NULL, NULL);
+        }
         if (emit(m, line) != 0)
             return MONITOR_E_IO;
 
